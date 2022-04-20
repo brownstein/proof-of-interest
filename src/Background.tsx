@@ -1,10 +1,9 @@
 import EventEmitter from 'events';
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import Delaunator from 'delaunator';
 
 export interface IBackgroundProps {
-  colorChangeEmitter: EventEmitter;
-  initialColor?: [number, number, number];
+  color?: [number, number, number];
   pointCount?: number;
 }
 
@@ -20,21 +19,25 @@ interface IPoint {
 // utils borrowed from https://mapbox.github.io/delaunator
 function edgesOfTriangle(t: number) { return [3 * t, 3 * t + 1, 3 * t + 2]; }
 function pointsOfTriangle(delaunay: Delaunator<number[]>, t: number) {
-    return edgesOfTriangle(t)
-        .map(e => delaunay.triangles[e]);
+  return edgesOfTriangle(t).map(e => delaunay.triangles[e]);
 }
 function forEachTriangle<T>(points: T[], delaunay: Delaunator<number[]>, callback: (index: number, pts: T[]) => void) {
-    for (let t = 0; t < delaunay.triangles.length / 3; t++) {
-        callback(t, pointsOfTriangle(delaunay, t).map(p => points[p]));
-    }
+  for (let t = 0; t < delaunay.triangles.length / 3; t++) {
+    callback(t, pointsOfTriangle(delaunay, t).map(p => points[p]));
+  }
 }
 
 export const Background: FC<IBackgroundProps> = ({
-  colorChangeEmitter,
-  initialColor = [1, 1, 1],
+  color = [1, 1, 1],
   pointCount = 500
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const colorChangeEmitter = useMemo<EventEmitter>(() => new EventEmitter(), []);
+  const colorRef = useRef<[number, number, number]>(color);
+  const [canvasSize, setCanvasSize] = useState<[number, number]>([
+    Math.floor(window.innerWidth),
+    Math.floor(window.innerHeight)
+  ]);
 
   useEffect(() => {
     // initialize webgl
@@ -78,7 +81,7 @@ export const Background: FC<IBackgroundProps> = ({
     // set up state
     let running = true;
     let points: IPoint[] = [];
-    let currentColor = [...initialColor];
+    let currentColor = [...color];
     let changeCounter = 0;
     let changeProgress = 0;
 
@@ -165,17 +168,37 @@ export const Background: FC<IBackgroundProps> = ({
       requestAnimationFrame(doFrame);
     }
 
+    function resize() {
+      if (!canvas) {
+        return;
+      }
+      // there's actually a bug somewhere here; expanding the window leaves
+      // a white space to the right; pausing resolution to focus on core features
+      setCanvasSize([
+        Math.floor(window.innerWidth),
+        Math.floor(window.innerHeight)
+      ]);
+    }
+
     // go
     seedPoints();
     doFrame();
 
+    window.addEventListener('resize', resize);
+
     return () => {
       running = false;
+      window.removeEventListener('resize', resize);
       // TODO: cleanup code for WebGL context
     };
-  }, [colorChangeEmitter, initialColor, pointCount]);
+  }, [colorChangeEmitter, colorRef, pointCount]);
 
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  return <canvas className='background' ref={canvasRef} width={width} height={height} />;
+  // we communcate with the rendering loop using an event emitter so that
+  // the initializer runs only once but we can still handle prop updates
+  if (colorRef.current !== color) {
+    colorRef.current = color;
+    colorChangeEmitter.emit('changeColor', color);
+  }
+
+  return <canvas className='background' ref={canvasRef} width={`${canvasSize[0]}px`} height={`${canvasSize[1]}px`} />;
 };
