@@ -140,5 +140,10 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "@types/delaunator": "^5.0.0",
+    "delaunator": "^5.0.0",
+    "events": "^3.3.0"
   }
 }
