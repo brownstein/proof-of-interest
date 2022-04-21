@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "https://brownstein.github.io/proof-of-interest/static/css/main.89626252.css",
+    "main.js": "https://brownstein.github.io/proof-of-interest/static/js/main.30c89ac1.js",
+    "static/js/787.cdb53a90.chunk.js": "https://brownstein.github.io/proof-of-interest/static/js/787.cdb53a90.chunk.js",
+    "index.html": "https://brownstein.github.io/proof-of-interest/index.html",
+    "main.89626252.css.map": "https://brownstein.github.io/proof-of-interest/static/css/main.89626252.css.map",
+    "main.30c89ac1.js.map": "https://brownstein.github.io/proof-of-interest/static/js/main.30c89ac1.js.map",
+    "787.cdb53a90.chunk.js.map": "https://brownstein.github.io/proof-of-interest/static/js/787.cdb53a90.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.89626252.css",
+    "static/js/main.30c89ac1.js"
+  ]
+}
