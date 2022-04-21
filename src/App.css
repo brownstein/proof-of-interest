@@ -1,5 +1,8 @@
 .app {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -11,4 +14,107 @@
   z-index: -1;
   left: 0;
   top: 0;
+}
+
+form.sign-in {
+  display: flex;
+  flex-direction: row;
+}
+
+form.sign-in label {
+  display: flex;
+  flex-direction: column;
+}
+
+form.sign-in label input {
+  height: 32px;
+  line-height: 24px;
+  width: 320px;
+}
+
+form.sign-in label span {
+  display: block;
+  height: 24px;
+}
+
+form.sign-in button {
+  display: block;
+  width: 40px;
+  height: 36px;
+  border: 1px solid #006633;
+  background: #44ff66;
+  margin-top: 25px;
+  margin-left: 2px;
+}
+
+.assets {
+  display: grid;
+  grid-template-columns: 400px 400px;
+  gap: 1em;
+  overflow-y: scroll;
+  max-width: 80vw;
+  padding-top: 200px;
+  padding-bottom: 200px;
+}
+
+@media(max-width: 1000px) {
+  .assets {
+    grid-template-columns: 400px;
+  }
+}
+
+.asset {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  background-color: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transform: rotate3D(0, 0, 1);
+}
+
+.asset-display-image {
+  width: 100%;
+  height: auto;
+}
+
+.asset-details {
+  position: absolute;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.5);
+  width: 100%;
+  padding: 16px 8px;
+}
+
+.asset-details-display {
+  max-width: 50vw;
+  min-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 8px;
+  height: 50vh;
+  overflow-y: scroll;
+  padding: 8px;
+  position: relative;
+}
+
+.asset-details-display .back-link {
+  margin-bottom: 1em;
+}
+
+.asset-details-display .image-header {
+  display: block;
+  width: 100%;
+  max-height: 50%;
+  overflow: hidden;
+  flex-direction: row;
+}
+
+.asset-details-display .image-header img {
+  width: 100%;
+  height: auto;
 }

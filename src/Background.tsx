@@ -29,7 +29,7 @@ function forEachTriangle<T>(points: T[], delaunay: Delaunator<number[]>, callbac
 
 export const Background: FC<IBackgroundProps> = ({
   color = [1, 1, 1],
-  pointCount = 500
+  pointCount = 1000
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const colorChangeEmitter = useMemo<EventEmitter>(() => new EventEmitter(), []);
@@ -92,7 +92,11 @@ export const Background: FC<IBackgroundProps> = ({
           y: Math.random() * 4 - 2,
           vx: 0,
           vy: 0,
-          color: [...currentColor] as [number, number, number],
+          color: [
+            Math.min(1, currentColor[0] + Math.random() * 0.1),
+            Math.min(1, currentColor[1] + Math.random() * 0.1),
+            Math.min(1, currentColor[2] + Math.random() * 0.1)
+          ],
           changeCounter
         });
       }
@@ -137,7 +141,7 @@ export const Background: FC<IBackgroundProps> = ({
       }
 
       // animate
-      changeProgress += 0.1;
+      changeProgress += 0.05;
       movePoints();
       recolorAndTossPoints();
 
