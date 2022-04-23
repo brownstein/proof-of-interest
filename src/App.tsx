@@ -23,7 +23,7 @@ const SignInForm: FC<ISignInFormProps> = ({
   return (
     <form onSubmit={onSubmit} className='sign-in'>
       <label>
-        <span>Enter your Etherium address:</span>
+        <span>Enter your Ethereum address:</span>
         <input type='text' value={address} onChange={e => setAddress(e.target.value)}/>
       </label>
       <button role='submit' disabled={!address}>GO!</button>
