@@ -1,3 +1,4 @@
+import debounce from 'debounce';
 import EventEmitter from 'events';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import Delaunator from 'delaunator';
@@ -80,10 +81,13 @@ export const Background: FC<IBackgroundProps> = ({
 
     // set up state
     let running = true;
+    let lastUpdatedAt = new Date().getTime();
     let points: IPoint[] = [];
     let currentColor = [...color];
     let changeCounter = 0;
     let changeProgress = 0;
+
+    const v = 0.1;
 
     function seedPoints() {
       while (points.length < pointCount) {
@@ -93,22 +97,29 @@ export const Background: FC<IBackgroundProps> = ({
           vx: 0,
           vy: 0,
           color: [
-            Math.min(1, currentColor[0] + Math.random() * 0.1),
-            Math.min(1, currentColor[1] + Math.random() * 0.1),
-            Math.min(1, currentColor[2] + Math.random() * 0.1)
+            Math.min(1, currentColor[0] * 0.9 + Math.random() * v),
+            Math.min(1, currentColor[1] * 0.9 + Math.random() * v),
+            Math.min(1, currentColor[2] * 0.9 + Math.random() * v)
           ],
           changeCounter
         });
       }
     }
 
-    function movePoints() {
+    function movePoints(): boolean {
+      let anythingMoving = false;
       points.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
         p.vx *= 0.9;
         p.vy *= 0.9;
+        if (Math.abs(p.vx) + Math.abs(p.vy) < 0.0001) {
+          p.vx = 0;
+          p.vy = 0;
+        }
+        anythingMoving = anythingMoving || !!(p.vx || p.vy);
       });
+      return anythingMoving;
     }
 
     function recolorAndTossPoints() {
@@ -130,6 +141,7 @@ export const Background: FC<IBackgroundProps> = ({
     }
 
     colorChangeEmitter.on('changeColor', (color: [number, number, number]) => {
+      lastUpdatedAt = new Date().getTime();
       currentColor = color;
       changeCounter++;
       changeProgress = 0;
@@ -140,9 +152,19 @@ export const Background: FC<IBackgroundProps> = ({
         return;
       }
 
+      const now = new Date().getTime();
+      const hasUpdates = (now - lastUpdatedAt) < 1000;
+
+      if (!hasUpdates) {
+        requestAnimationFrame(doFrame);
+        return;
+      }
+
       // animate
       changeProgress += 0.05;
-      movePoints();
+      if (movePoints()) {
+        lastUpdatedAt = now;
+      };
       recolorAndTossPoints();
 
       // find triangles in our point set
@@ -178,21 +200,24 @@ export const Background: FC<IBackgroundProps> = ({
       }
       // there's actually a bug somewhere here; expanding the window leaves
       // a white space to the right; pausing resolution to focus on core features
-      setCanvasSize([
-        Math.floor(window.innerWidth),
-        Math.floor(window.innerHeight)
-      ]);
+      lastUpdatedAt = new Date().getTime();
+      const width = Math.floor(window.innerWidth);
+      const height = Math.floor(window.innerHeight);
+      gl?.viewport(0, 0, width, height);
+      setCanvasSize([width, height]);
     }
+
+    const debouncedResize = debounce(resize, 100);
 
     // go
     seedPoints();
     doFrame();
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', debouncedResize);
 
     return () => {
       running = false;
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', debouncedResize);
       // TODO: cleanup code for WebGL context
     };
   }, [colorChangeEmitter, colorRef, pointCount]);
