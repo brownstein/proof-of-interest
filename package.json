@@ -144,7 +144,9 @@
     ]
   },
   "devDependencies": {
+    "@types/debounce": "^1.2.1",
     "@types/delaunator": "^5.0.0",
+    "debounce": "^1.2.1",
     "delaunator": "^5.0.0",
     "events": "^3.3.0",
     "gh-pages": "^3.2.3"
